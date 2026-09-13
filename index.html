@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Minería de Datos - Shopify</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #eef2ff, #f8fafc);
+            padding: 35px 20px;
+            color: #1e293b;
+        }
+
+        .contenedor {
+            width: 100%;
+            max-width: 1000px;
+            margin: auto;
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.12);
+        }
+
+        /* ENCABEZADO */
+
+        .encabezado {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .encabezado h1 {
+            font-size: 34px;
+            margin-bottom: 10px;
+        }
+
+        .encabezado p {
+            color: #64748b;
+            font-size: 17px;
+        }
+
+        .modelo {
+            display: inline-block;
+            margin-top: 18px;
+            padding: 9px 18px;
+            background: #e0e7ff;
+            color: #3730a3;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+
+        /* SECCIONES */
+
+        .seccion {
+            margin-top: 35px;
+        }
+
+        .seccion h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 23px;
+        }
+
+        /* FORMULARIO */
+
+        .formulario {
+            display: grid;
+            gap: 20px;
+        }
+
+        .campo {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .campo label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #334155;
+        }
+
+        .campo input,
+        .campo select {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .campo input:focus,
+        .campo select:focus {
+            border-color: #6366f1;
+        }
+
+        .boton {
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            background: #4f46e5;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .boton:hover {
+            background: #4338ca;
+        }
+
+        .boton:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        /* RESULTADO */
+
+        .resultado {
+            display: none;
+            margin-top: 30px;
+            padding: 30px;
+            border-radius: 18px;
+            background: #f1f5f9;
+            text-align: center;
+        }
+
+        .resultado h2 {
+            margin-bottom: 10px;
+        }
+
+        .monto {
+            font-size: 48px;
+            font-weight: bold;
+            color: #4f46e5;
+            margin: 15px 0 20px;
+        }
+
+        .detalle {
+            color: #64748b;
+            line-height: 1.9;
+        }
+
+        /* MÉTRICAS */
+
+        .metricas {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .tarjeta-metrica {
+            padding: 22px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .tarjeta-metrica h3 {
+            color: #64748b;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .tarjeta-metrica strong {
+            font-size: 28px;
+            color: #4f46e5;
+        }
+
+        /* COMPARACIÓN */
+
+        .tabla-contenedor {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            padding: 13px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f1f5f9;
+        }
+
+        .mejor {
+            font-weight: bold;
+            background: #eef2ff;
+        }
+
+        /* VARIABLES */
+
+        .variables {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .variable {
+            padding: 18px;
+            background: #f8fafc;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+            color: #475569;
+        }
+
+        /* ERROR */
+
+        .error {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background: #fee2e2;
+            color: #991b1b;
+            text-align: center;
+        }
+
+        /* PIE */
+
+        .pie {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        /* CELULAR */
+
+        @media (max-width: 700px) {
+
+            .contenedor {
+                padding: 25px;
+            }
+
+            .encabezado h1 {
+                font-size: 27px;
+            }
+
+            .metricas {
+                grid-template-columns: 1fr;
+            }
+
+            .variables {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .monto {
+                font-size: 38px;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="contenedor">
+
+
+    <!-- =====================================================
+         ENCABEZADO
+    ====================================================== -->
+
+    <div class="encabezado">
+
+        <h1>Minería de Datos - Shopify</h1>
+
+        <p>
+            Sistema de predicción del monto de pedidos
+            mediante aprendizaje automático
+        </p>
+
+        <span class="modelo">
+            Modelo seleccionado: Gradient Boosting
+        </span>
+
+    </div>
+
+
+    <!-- =====================================================
+         PREDICCIÓN
+    ====================================================== -->
+
+    <div class="seccion">
+
+        <h2>Realizar una predicción</h2>
+
+        <form id="formulario" class="formulario">
+
+
+            <div class="campo">
+
+                <label for="total_items">
+                    Cantidad de productos
+                </label>
+
+                <input
+                    type="number"
+                    id="total_items"
+                    min="1"
+                    value="2"
+                    required
+                >
+
+            </div>
+
+
+            <div class="campo">
+
+                <label for="payment_method">
+                    Método de pago
+                </label>
+
+                <select id="payment_method" required>
+
+                    <option value="cash">
+                        Efectivo
+                    </option>
+
+                    <option value="credit_card">
+                        Tarjeta de crédito
+                    </option>
+
+                    <option value="debit">
+                        Tarjeta débito
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="campo">
+
+                <label for="created_at">
+                    Fecha del pedido
+                </label>
+
+                <input
+                    type="datetime-local"
+                    id="created_at"
+                    value="2017-03-13T12:36"
+                    required
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="boton"
+                id="boton"
+            >
+                PREDECIR MONTO
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- =====================================================
+         ERROR
+    ====================================================== -->
+
+    <div id="error" class="error"></div>
+
+
+    <!-- =====================================================
+         RESULTADO
+    ====================================================== -->
+
+    <div id="resultado" class="resultado">
+
+        <h2>Resultado de la predicción</h2>
+
+        <div class="monto" id="monto">
+            $0.00
+        </div>
+
+        <div class="detalle">
+
+            <p>
+                <strong>Productos:</strong>
+                <span id="detalle_items"></span>
+            </p>
+
+            <p>
+                <strong>Método de pago:</strong>
+                <span id="detalle_pago"></span>
+            </p>
+
+            <p>
+                <strong>Fecha:</strong>
+                <span id="detalle_fecha"></span>
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         MÉTRICAS DEL MEJOR MODELO
+    ====================================================== -->
+
+    <div class="seccion">
+
+        <h2>Desempeño del modelo Gradient Boosting</h2>
+
+        <div class="metricas">
+
+            <div class="tarjeta-metrica">
+
+                <h3>MAE</h3>
+
+                <strong>0.13664</strong>
+
+            </div>
+
+
+            <div class="tarjeta-metrica">
+
+                <h3>RMSE</h3>
+
+                <strong>0.17385</strong>
+
+            </div>
+
+
+            <div class="tarjeta-metrica">
+
+                <h3>R²</h3>
+
+                <strong>0.87419</strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         COMPARACIÓN DE MODELOS
+    ====================================================== -->
+
+    <div class="seccion">
+
+        <h2>Comparación de modelos</h2>
+
+        <div class="tabla-contenedor">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Modelo</th>
+                        <th>MAE</th>
+                        <th>RMSE</th>
+                        <th>R²</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <tr>
+
+                        <td>Regresión Lineal</td>
+                        <td>0.15196</td>
+                        <td>0.19863</td>
+                        <td>0.83577</td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td>Random Forest</td>
+                        <td>0.13746</td>
+                        <td>0.17508</td>
+                        <td>0.87241</td>
+
+                    </tr>
+
+
+                    <tr class="mejor">
+
+                        <td>Gradient Boosting</td>
+                        <td>0.13664</td>
+                        <td>0.17385</td>
+                        <td>0.87419</td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         VARIABLES
+    ====================================================== -->
+
+    <div class="seccion">
+
+        <h2>Variables utilizadas por el modelo</h2>
+
+        <div class="variables">
+
+            <div class="variable">
+                Cantidad de productos
+            </div>
+
+            <div class="variable">
+                Método de pago
+            </div>
+
+            <div class="variable">
+                Día de la semana
+            </div>
+
+            <div class="variable">
+                Mes
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         PIE
+    ====================================================== -->
+
+    <div class="pie">
+
+        Proyecto de Minería de Datos - Shopify<br>
+
+        Modelo entrenado en Google Colab e integrado
+        mediante FastAPI
+
+    </div>
+
+
+</div>
+
+
+<script>
+
+
+    // =====================================================
+    // ELEMENTOS
+    // =====================================================
+
+    const formulario =
+        document.getElementById("formulario");
+
+    const boton =
+        document.getElementById("boton");
+
+    const resultado =
+        document.getElementById("resultado");
+
+    const error =
+        document.getElementById("error");
+
+
+    // =====================================================
+    // PREDICCIÓN
+    // =====================================================
+
+    formulario.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+            resultado.style.display = "none";
+
+            error.style.display = "none";
+
+            boton.disabled = true;
+
+            boton.textContent = "PROCESANDO...";
+
+
+            // Obtener datos
+
+            const total_items =
+                parseInt(
+                    document.getElementById(
+                        "total_items"
+                    ).value
+                );
+
+
+            const payment_method =
+                document.getElementById(
+                    "payment_method"
+                ).value;
+
+
+            const created_at =
+                document.getElementById(
+                    "created_at"
+                ).value;
+
+
+            try {
+
+
+                // Enviar datos a FastAPI
+
+                const respuesta =
+                    await fetch(
+                        "/predict",
+                        {
+
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify({
+
+                                    total_items:
+                                        total_items,
+
+                                    payment_method:
+                                        payment_method,
+
+                                    created_at:
+                                        created_at
+
+                                })
+
+                        }
+                    );
+
+
+                const datos =
+                    await respuesta.json();
+
+
+                // Verificar respuesta
+
+                if (!respuesta.ok) {
+
+                    throw new Error(
+                        datos.detail ||
+                        "Ocurrió un error."
+                    );
+
+                }
+
+
+                // Mostrar monto
+
+                document.getElementById(
+                    "monto"
+                ).textContent =
+                    "$" +
+                    Number(
+                        datos.prediccion_order_amount
+                    ).toLocaleString(
+                        "es-CO",
+                        {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    );
+
+
+                // Mostrar detalles
+
+                document.getElementById(
+                    "detalle_items"
+                ).textContent =
+                    datos.total_items;
+
+
+                document.getElementById(
+                    "detalle_pago"
+                ).textContent =
+                    datos.payment_method;
+
+
+                document.getElementById(
+                    "detalle_fecha"
+                ).textContent =
+                    datos.created_at;
+
+
+                // Mostrar resultado
+
+                resultado.style.display =
+                    "block";
+
+
+                // Llevar el resultado a la pantalla
+
+                resultado.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+
+
+            }
+
+            catch (e) {
+
+                error.textContent =
+                    "Error: " + e.message;
+
+                error.style.display =
+                    "block";
+
+            }
+
+            finally {
+
+                boton.disabled = false;
+
+                boton.textContent =
+                    "PREDECIR MONTO";
+
+            }
+
+        }
+
+    );
+
+</script>
+
+
+</body>
+
+</html>
